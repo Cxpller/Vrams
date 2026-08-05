@@ -11,7 +11,7 @@
 | **项目名称** | VRAMS (Virtual Reality Asset Management System) |
 | **定位** | 面向 VRChat 用户及 Unity 创作者的本地化虚拟资产管理工具 |
 | **技术栈** | Tauri v2 + Vue 3 + TypeScript + Rust + SQLite |
-| **开发阶段** | 需求定稿，MVP 计划就绪，**等待开始 Phase 1** |
+| **开发阶段** | 开发进行中：仓库已推送 GitHub（`main`），**待开始 Phase 1** |
 | **用户模型** | 单机单用户，无登录/多用户 |
 | **支持格式** | .unitypackage / .zip / .7z |
 | **存储策略** | 复制到库目录 `assets/{id}/`，保留原始文件名，导入后可删除源文件 |
@@ -81,6 +81,8 @@ docs/
 ---
 
 ## 4. 开发计划一览
+
+**当前进度**: P1~P9 均未开始，仓库已推送 GitHub，下一步按 `phase1-init.md` 开工。
 
 | Phase | 名称 | 工时 | 依赖 | 任务数 | 文件 |
 |-------|------|------|------|--------|------|
