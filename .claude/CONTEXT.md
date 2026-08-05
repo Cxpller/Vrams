@@ -77,6 +77,7 @@ docs/
 | `architecture-design` | 架构设计工作流 |
 | `project-analysis` | 项目分析 |
 | `review` | 代码审查（独立 subagent，对照验收标准/开发规范/架构文档输出审查报告） |
+| `mentor` | 教学模式：边做项目边讲 Agent/Rust/Tauri/SQLite 知识，默认开启可随时喊停（详见 `.claude/skills/mentor/SKILL.md`） |
 
 ---
 
@@ -154,6 +155,8 @@ vrams/
 ## 7. 后续建议
 
 ### 7.1 标准 Agent 工作流
+
+> **教学模式默认开启**：以下流程不变，开发动作照常执行；同时按 `mentor` skill 在每个 Task 穿插概念讲解（用户喊停即停、喊「继续」即恢复）。
 
 每次会话按以下流程执行，①② 只在需求/架构变化时触发：
 
