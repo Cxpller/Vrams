@@ -11,11 +11,35 @@
 | **项目名称** | VRAMS (Virtual Reality Asset Management System) |
 | **定位** | 面向 VRChat 用户及 Unity 创作者的本地化虚拟资产管理工具 |
 | **技术栈** | Tauri v2 + Vue 3 + TypeScript + Rust + SQLite |
-| **开发阶段** | 开发进行中：仓库已推送 GitHub（`main`），**待开始 Phase 1** |
+| **开发阶段** | **Phase 1 进行中**：Task 1.1/1.4 依赖已装好，卡在 VS Build Tools（缺 link.exe），待用户安装后继续 |
 | **用户模型** | 单机单用户，无登录/多用户 |
 | **支持格式** | .unitypackage / .zip / .7z |
 | **存储策略** | 复制到库目录 `assets/{id}/`，保留原始文件名，导入后可删除源文件 |
 | **包体解析** | 只读不解压，不缓存 |
+
+### 1.1 当前开发进度（Phase 1，2026-08 会话）
+
+**已完成**
+
+- [x] 仓库推送 GitHub：`main` = `ecab94f`（含 mentor skill + 教学模式登记）
+- [x] **Task 1.4 前端依赖**：element-plus 2.14.3、@element-plus/icons-vue 2.3.2、vue-router **4.6.4**、pinia 4.0.2、@vueuse/core 14.4.0；`pnpm peers check` 无冲突
+  - ⚠️ vue-router 曾装成 5.2.0，它要求 vite ^7/^8（项目是 vite 6），已降级到 4.6.4
+- [x] **Task 1.1 Rust 依赖**：Cargo.toml 已写入 rusqlite 0.40.1(bundled)、zip 8.6.0、tar 0.4.46、flate2 1.1.9、scraper 0.27.0、reqwest 0.13.4(blocking, **rustls 默认**，无需 OpenSSL)、tauri-plugin-dialog 2.7.2、tauri-plugin-fs 2.5.1
+
+**卡点（需要用户操作）**
+
+- ❌ **VS Build Tools 未装** → `cargo check` 报 `linker 'link.exe' not found`（MSVC 链接器缺失，所有带 build script 的 crate 编译失败）
+  - 安装：管理员 PowerShell 跑 `winget install Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"`
+  - 或手动下载 Build Tools for VS 2022，勾选「使用 C++ 的桌面开发」
+  - 装完重开终端，重跑 `cd src-tauri; cargo check`
+
+**下一步（Build Tools 装好后）**
+
+1. 重跑 `cargo check` 验证 Task 1.1
+2. Task 1.2 后端模块目录（commands/models/services/db/parsers/download/utils + mod.rs）
+3. Task 1.5 前端目录结构 → Task 1.3 清理脚手架 + Element Plus 注册 → 1.6 路径别名 → 1.7 Tauri 配置 → 1.8 全量构建
+
+**未提交变更（工作区）**：`src-tauri/Cargo.toml`、`src-tauri/Cargo.lock`、`package.json`、`pnpm-lock.yaml`（等 Task 1.8 构建验证通过后一起 commit）
 
 ---
 
