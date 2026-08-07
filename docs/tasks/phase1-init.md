@@ -45,9 +45,9 @@
 
 ### 验收标准
 
-- [ ] `cargo check` 编译通过，无依赖版本冲突
-- [ ] 新增 crate 均成功下载并编译
-- [ ] 所有 crate 版本兼容 Tauri 2 的 MSRV
+- [x] `cargo check` 编译通过，无依赖版本冲突
+- [x] 新增 crate 均成功下载并编译
+- [x] 所有 crate 版本兼容 Tauri 2 的 MSRV
 
 ### 风险点
 
@@ -116,9 +116,9 @@
 
 ### 验收标准
 
-- [ ] 所有模块目录和 `mod.rs` 文件创建完毕
-- [ ] `cargo check` 通过，无未使用的模块警告（可使用 `#[allow(dead_code)]` 临时标注）
-- [ ] `lib.rs` 中正确声明了所有模块
+- [x] 所有模块目录和 `mod.rs` 文件创建完毕
+- [x] `cargo check` 通过，无未使用的模块警告（可使用 `#[allow(dead_code)]` 临时标注）
+- [x] `lib.rs` 中正确声明了所有模块
 
 ### 风险点
 
@@ -175,10 +175,10 @@
 
 ### 验收标准
 
-- [ ] `pnpm dev` 启动后页面为空白布局，无 greet 表单
-- [ ] `cargo check` 通过，无未使用的函数警告
-- [ ] 编译产物中不包含 greet 相关代码
-- [ ] Element Plus 全局注册成功（可在 Vue DevTools 中看到 ElementPlus 组件）
+- [x] `pnpm dev` 启动后页面为空白布局，无 greet 表单
+- [x] `cargo check` 通过，无未使用的函数警告
+- [x] 编译产物中不包含 greet 相关代码
+- [x] Element Plus 全局注册成功（可在 Vue DevTools 中看到 ElementPlus 组件）
 
 ### 风险点
 
@@ -219,9 +219,9 @@
 
 ### 验收标准
 
-- [ ] `pnpm install` 成功完成，无版本冲突
-- [ ] `pnpm-lock.yaml` 正确锁定所有依赖版本
-- [ ] 在 `main.ts` 中 `import ElementPlus from "element-plus"` 编译通过
+- [x] `pnpm install` 成功完成，无版本冲突
+- [x] `pnpm-lock.yaml` 正确锁定所有依赖版本
+- [x] 在 `main.ts` 中 `import ElementPlus from "element-plus"` 编译通过
 
 ### 风险点
 
@@ -277,10 +277,10 @@ src/utils/           ← 工具函数目录
 
 ### 验收标准
 
-- [ ] 所有目录创建完毕，结构对齐系统架构设计
-- [ ] 类型文件可被正确 import（`import { Asset } from "@/types/asset"`）
-- [ ] 路由实例创建成功，`pnpm build` 无 TS 错误
-- [ ] `App.vue` 中 `<router-view />` 渲染（当前为空路由，白屏正常）
+- [x] 所有目录创建完毕，结构对齐系统架构设计
+- [x] 类型文件可被正确 import（`import { Asset } from "@/types/asset"`）
+- [x] 路由实例创建成功，`pnpm build` 无 TS 错误
+- [x] `App.vue` 中 `<router-view />` 渲染（当前为空路由，白屏正常）
 
 ### 风险点
 
@@ -334,10 +334,10 @@ resolve: {
 
 ### 验收标准
 
-- [ ] 在任意 `.ts` 文件中 `import X from "@/types/asset"` 编译通过
-- [ ] 在任意 `.vue` 文件中 `<script setup lang="ts">` 内使用 `@/` 路径编译通过
-- [ ] VSCode 中 `@/` 路径有自动补全提示
-- [ ] `pnpm build` 通过，无路径解析错误
+- [x] 在任意 `.ts` 文件中 `import X from "@/types/asset"` 编译通过
+- [x] 在任意 `.vue` 文件中 `<script setup lang="ts">` 内使用 `@/` 路径编译通过
+- [x] VSCode 中 `@/` 路径有自动补全提示
+- [x] `pnpm build` 通过，无路径解析错误
 
 ### 风险点
 
@@ -391,10 +391,10 @@ resolve: {
 
 ### 验收标准
 
-- [ ] `pnpm tauri dev` 启动后窗口标题显示为 "VRAMS"
-- [ ] 窗口默认尺寸为 1200×800
-- [ ] CSP 策略配置后无控制台安全警告（Element Plus 样式加载正常）
-- [ ] `tauri-plugin-dialog` 和 `tauri-plugin-fs` 的权限生效
+- [x] `pnpm tauri dev` 启动后窗口标题显示为 "VRAMS"
+- [x] 窗口默认尺寸为 1200×800
+- [x] CSP 策略配置后无控制台安全警告（Element Plus 样式加载正常）
+- [x] `tauri-plugin-dialog` 和 `tauri-plugin-fs` 的权限生效
 
 ### 风险点
 
@@ -440,11 +440,11 @@ pnpm tauri build --debug
 
 ### 验收标准
 
-- [ ] `cargo check` 通过，无错误、无 warning
-- [ ] `pnpm install` 成功，lockfile 更新
-- [ ] `pnpm build`（vue-tsc + vite build）通过，无类型错误
-- [ ] `pnpm tauri dev` 启动后窗口正常显示（空布局，无控制台报错）
-- [ ] 所有 Phase 1 验收标准 checklist 全部满足
+- [x] `cargo check` 通过，无错误、无 warning
+- [x] `pnpm install` 成功，lockfile 更新
+- [x] `pnpm build`（vue-tsc + vite build）通过，无类型错误
+- [x] `pnpm tauri dev` 启动后窗口正常显示（空布局，无控制台报错）
+- [x] 所有 Phase 1 验收标准 checklist 全部满足
 
 ### 风险点
 
@@ -460,16 +460,16 @@ pnpm tauri build --debug
 
 完成后逐项确认：
 
-- [ ] 1.1 Rust 依赖安装完成，`cargo check` 通过
-- [ ] 1.2 后端模块目录结构创建完毕，所有 `mod.rs` 就位
-- [ ] 1.3 脚手架 greet 代码已移除，Element Plus 已注册
-- [ ] 1.4 前端依赖安装完成，`pnpm build` 通过
-- [ ] 1.5 前端目录结构创建完毕，类型文件、路由占位就位
-- [ ] 1.6 Vite + TypeScript 路径别名 `@/` 配置完成
-- [ ] 1.7 Tauri CSP 已配置，窗口 1200×800，权限已更新
-- [ ] 1.8 全量构建通过（`pnpm tauri build --debug`）
-- [ ] 应用启动后显示空白布局，无 greet 残留，无控制台报错
-- [ ] 工程状态可向 Phase 2（数据库与数据模型）交付
+- [x] 1.1 Rust 依赖安装完成，`cargo check` 通过
+- [x] 1.2 后端模块目录结构创建完毕，所有 `mod.rs` 就位
+- [x] 1.3 脚手架 greet 代码已移除，Element Plus 已注册
+- [x] 1.4 前端依赖安装完成，`pnpm build` 通过
+- [x] 1.5 前端目录结构创建完毕，类型文件、路由占位就位
+- [x] 1.6 Vite + TypeScript 路径别名 `@/` 配置完成
+- [x] 1.7 Tauri CSP 已配置，窗口 1200×800，权限已更新
+- [x] 1.8 全量构建通过（`pnpm tauri build --debug`）
+- [x] 应用启动后显示空白布局，无 greet 残留，无控制台报错
+- [x] 工程状态可向 Phase 2（数据库与数据模型）交付
 
 ---
 
