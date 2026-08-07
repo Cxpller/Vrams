@@ -11,7 +11,7 @@
 | **项目名称** | VRAMS (Virtual Reality Asset Management System) |
 | **定位** | 面向 VRChat 用户及 Unity 创作者的本地化虚拟资产管理工具 |
 | **技术栈** | Tauri v2 + Vue 3 + TypeScript + Rust + SQLite |
-| **开发阶段** | **Phase 1 进行中**：Task 1.1/1.4 依赖已装好，卡在 VS Build Tools（缺 link.exe），待用户安装后继续 |
+| **开发阶段** | **Phase 1 已完成**（2026-08 会话），可交付 Phase 2 |
 | **用户模型** | 单机单用户，无登录/多用户 |
 | **支持格式** | .unitypackage / .zip / .7z |
 | **存储策略** | 复制到库目录 `assets/{id}/`，保留原始文件名，导入后可删除源文件 |
@@ -22,24 +22,24 @@
 **已完成**
 
 - [x] 仓库推送 GitHub：`main` = `ecab94f`（含 mentor skill + 教学模式登记）
-- [x] **Task 1.4 前端依赖**：element-plus 2.14.3、@element-plus/icons-vue 2.3.2、vue-router **4.6.4**、pinia 4.0.2、@vueuse/core 14.4.0；`pnpm peers check` 无冲突
-  - ⚠️ vue-router 曾装成 5.2.0，它要求 vite ^7/^8（项目是 vite 6），已降级到 4.6.4
-- [x] **Task 1.1 Rust 依赖**：Cargo.toml 已写入 rusqlite 0.40.1(bundled)、zip 8.6.0、tar 0.4.46、flate2 1.1.9、scraper 0.27.0、reqwest 0.13.4(blocking, **rustls 默认**，无需 OpenSSL)、tauri-plugin-dialog 2.7.2、tauri-plugin-fs 2.5.1
+- [x] **Task 1.1 Rust 依赖**：Cargo.toml 依赖全部就位，`cargo check` 通过（EXIT 0 无警告）
+- [x] **Task 1.2 后端模块目录**：commands/models/services/db/parsers/download/utils 7 域 + db/repository，共 26 个文件（mod.rs 声明 + 占位）
+- [x] **Task 1.3 清理脚手架**：greet 前后端清除，App.vue 仅留 `<router-view />`，Element Plus **按需引入**（用户决策，unplugin-vue-components + unplugin-auto-import，CSS 产物减半）
+- [x] **Task 1.4 前端依赖**：element-plus 2.14.3、icons-vue、vue-router **4.6.4**、pinia 4.0.2、@vueuse/core 14.4.0（vue-router 曾误装 5.x 与 vite 6 冲突，已降级）
+- [x] **Task 1.5 前端目录**：api/components(common+business)/composables/stores/views/router/types/styles/utils 就位，types 占位接口、空路由、CSS 变量
+- [x] **Task 1.6 路径别名**：vite `resolve.alias` + tsconfig `baseUrl/paths` 双端一致，`@/` 可用
+- [x] **Task 1.7 Tauri 配置**：窗口 VRAMS 1200×800，CSP 从 null 收紧，capabilities 追加 `dialog:default`/`fs:default`/`core:window:default`，lib.rs 注册 dialog+fs 插件
+- [x] **Task 1.8 全量构建**：`cargo check` + `pnpm build` + `pnpm tauri build --debug` 全绿，产出 MSI + NSIS 安装包，vrams.exe 启动冒烟通过
 
-**卡点（需要用户操作）**
+**关键事件**
 
-- ❌ **VS Build Tools 未装** → `cargo check` 报 `linker 'link.exe' not found`（MSVC 链接器缺失，所有带 build script 的 crate 编译失败）
-  - 安装：管理员 PowerShell 跑 `winget install Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"`
-  - 或手动下载 Build Tools for VS 2022，勾选「使用 C++ 的桌面开发」
-  - 装完重开终端，重跑 `cd src-tauri; cargo check`
+- ✅ VS Build Tools 已装（vswhere 确认含 VC 工具链），link.exe 卡点解除
+- ✅ WiX/NSIS 下载卡 GitHub 直连 → 走用户本地代理 `127.0.0.1:27888`（`HTTPS_PROXY` 环境变量）秒下
+- ✅ 教学模式知识点已沉淀到 `.claude/notes/`（rust.md / tauri.md / agent.md）
 
-**下一步（Build Tools 装好后）**
+**下一步**：Phase 2（数据库与数据模型），任务文件 `docs/tasks/phase2-db.md`
 
-1. 重跑 `cargo check` 验证 Task 1.1
-2. Task 1.2 后端模块目录（commands/models/services/db/parsers/download/utils + mod.rs）
-3. Task 1.5 前端目录结构 → Task 1.3 清理脚手架 + Element Plus 注册 → 1.6 路径别名 → 1.7 Tauri 配置 → 1.8 全量构建
-
-**未提交变更（工作区）**：`src-tauri/Cargo.toml`、`src-tauri/Cargo.lock`、`package.json`、`pnpm-lock.yaml`（等 Task 1.8 构建验证通过后一起 commit）
+**未提交变更（工作区）**：Phase 1 全部变更（src-tauri/Cargo.toml、Cargo.lock、src-tauri/src/*、package.json、pnpm-lock.yaml、vite.config.ts、tsconfig.json、tauri.conf.json、capabilities、src/*、.claude/notes/* 等），待 Phase 1 Review 通过后 commit
 
 ---
 
@@ -107,7 +107,7 @@ docs/
 
 ## 4. 开发计划一览
 
-**当前进度**: P1~P9 均未开始，仓库已推送 GitHub，下一步按 `phase1-init.md` 开工。
+**当前进度**: P1 ✅ 已完成（全量构建验证通过），下一步按 `phase2-db.md` 开工。
 
 | Phase | 名称 | 工时 | 依赖 | 任务数 | 文件 |
 |-------|------|------|------|--------|------|
@@ -143,24 +143,38 @@ P1 → P2 → P3 ─────────────────────
 vrams/
 ├── .claude/
 │   ├── CONTEXT.md              # 本文件
+│   ├── notes/                  # 教学模式知识点沉淀（rust.md/tauri.md/agent.md）
 │   └── skills/
 ├── docs/                       # 需求/架构/数据库/计划/任务
-├── src/                        # Vue 前端（脚手架状态）
-│   ├── main.ts
-│   ├── App.vue
+├── src/                        # Vue 前端（Phase 1 目录结构就位）
+│   ├── api/                    # invoke 封装层（空）
+│   ├── components/common|business/
+│   ├── composables/
+│   ├── stores/
+│   ├── views/
+│   ├── router/index.ts         # 空路由实例
+│   ├── types/                  # asset.ts/tag.ts/api.ts 占位接口
+│   ├── styles/variables.css    # 全局 CSS 变量
+│   ├── utils/
+│   ├── App.vue                 # 仅 <router-view />
+│   ├── main.ts                 # createApp + router
+│   ├── components.d.ts / auto-imports.d.ts   # unplugin 自动生成
 │   └── vite-env.d.ts
-├── src-tauri/                  # Rust 后端（脚手架状态）
-│   ├── src/main.rs
-│   ├── src/lib.rs              # 仍有 greet 命令待清理
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-├── package.json                # 仅有 vue + tauri 基础依赖
-├── vite.config.ts
-├── tsconfig.json
+├── src-tauri/                  # Rust 后端（7 模块域占位）
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── lib.rs              # 顶级模块声明 + run()（无命令，插件已注册）
+│   │   ├── commands/ models/ services/ db/ parsers/ download/ utils/
+│   ├── capabilities/default.json  # dialog/fs/window 权限已声明
+│   ├── Cargo.toml              # 全部 Rust 依赖
+│   └── tauri.conf.json         # VRAMS 1200×800 + CSP
+├── package.json                # 前端依赖 + unplugin 按需引入
+├── vite.config.ts              # alias @/ + AutoImport/Components
+├── tsconfig.json               # paths @/*
 └── pnpm-lock.yaml
 ```
 
-当前处于 **Tauri + Vue 默认脚手架状态**，需要从 Phase 1 开始开发。
+当前 Phase 1 完成：可编译运行的空应用工程，下一步 Phase 2（数据库）。
 
 ---
 
@@ -173,6 +187,10 @@ vrams/
 | 3 | 回收站操作 Rust 实现方案待定 | ⚠️ 待验证 | 备选：直接删除 |
 | 4 | CSP 中 `'unsafe-inline'` 是安全弱项 | ✅ 已知接受 | MVP 后可优化 |
 | 5 | Phase 8 前库目录路径未定 | ✅ 计划阶段处理 | Phase 8 实现引导前先写死路径 |
+| 6 | `zip` 实装 8.6.0 与任务文档「2.x」版本线不符 | ⚠️ Phase 4 确认 | cargo add 自动取最新；`cargo check` 无冲突，Phase 4 实现 zip 解析时确认 8.x API 差异 |
+| 7 | `reqwest` 默认 TLS 是 native-tls（非此前记录的 rustls） | ✅ 已修正记录 | Windows 走 schannel 无需 OpenSSL，当前无碍；未来跨平台构建需补 `rustls-tls` feature |
+| 8 | `fs:default` 权限偏宽（含递归读写） | ⚠️ Phase 4 收窄 | 导入实现时按需限定 scope（如 dialog 选定路径） |
+| 9 | 架构文档 §9 列出的若干模块未在 Phase 1 创建 | ⚠️ 后续补齐 | 如 `utils/temp_dir.rs`、`services/asset_service.rs`、`tag_service.rs`、前端 `layouts/`、`api/{assets,tags,system}.ts` |
 
 ---
 
