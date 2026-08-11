@@ -7,14 +7,33 @@ mod parsers;
 mod services;
 mod utils;
 
+use std::sync::Mutex;
+
+use rusqlite::Connection;
+
+/// 全局应用状态,通过 `tauri::manage` 注入,command 用 `tauri::State<'_, AppState>` 访问。
+///
+/// `rusqlite::Connection` 不是 Send,必须用 `Mutex` 包裹才能放入 Tauri State;
+/// 同时也天然保证了同一时刻只有一个 command 访问数据库(SQLite 单写者限制)。
+pub struct AppState {
+    pub db: Mutex<Connection>,
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // 初始化数据库(Phase 8 前使用环境变量/默认路径,见 utils::path)
+    let db_path = utils::path::get_database_path();
+    let conn = db::initialize_database(&db_path.to_string_lossy())
+        .expect("数据库初始化失败,应用无法启动");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         // Phase 4 导入功能依赖：文件选择器（dialog）+ 文件读取（fs）
         // capabilities/default.json 已声明对应权限
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
+        // 全局状态注入:command 通过 tauri::State<AppState> 访问数据库连接
+        .manage(AppState { db: Mutex::new(conn) })
         // 后续 Phase 在此注册业务命令：tauri::generate_handler![commands::asset_commands::...]
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

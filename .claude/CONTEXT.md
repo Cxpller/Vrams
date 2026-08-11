@@ -11,13 +11,15 @@
 | **项目名称** | VRAMS (Virtual Reality Asset Management System) |
 | **定位** | 面向 VRChat 用户及 Unity 创作者的本地化虚拟资产管理工具 |
 | **技术栈** | Tauri v2 + Vue 3 + TypeScript + Rust + SQLite |
-| **开发阶段** | **Phase 1 已完成**（2026-08 会话），可交付 Phase 2 |
+| **开发阶段** | **Phase 2 已完成**（2026-08 会话），可交付 Phase 3 |
 | **用户模型** | 单机单用户，无登录/多用户 |
 | **支持格式** | .unitypackage / .zip / .7z |
 | **存储策略** | 复制到库目录 `assets/{id}/`，保留原始文件名，导入后可删除源文件 |
 | **包体解析** | 只读不解压，不缓存 |
 
-### 1.1 当前开发进度（Phase 1，2026-08 会话）
+### 1.1 当前开发进度
+
+**已完成（Phase 1，2026-08 会话）**
 
 **已完成**
 
@@ -37,9 +39,21 @@
 - ✅ WiX/NSIS 下载卡 GitHub 直连 → 走用户本地代理 `127.0.0.1:27888`（`HTTPS_PROXY` 环境变量）秒下
 - ✅ 教学模式知识点已沉淀到 `.claude/notes/`（rust.md / tauri.md / agent.md）
 
-**下一步**：Phase 2（数据库与数据模型），任务文件 `docs/tasks/phase2-db.md`
+**下一步**：Phase 3（标签系统全栈验证），任务文件 `docs/tasks/phase3-tags.md`
 
-**未提交变更（工作区）**：Phase 1 全部变更（src-tauri/Cargo.toml、Cargo.lock、src-tauri/src/*、package.json、pnpm-lock.yaml、vite.config.ts、tsconfig.json、tauri.conf.json、capabilities、src/*、.claude/notes/* 等），待 Phase 1 Review 通过后 commit
+**已完成（Phase 2，2026-08 会话）**
+
+- [x] **Task 2.1 V001__init.sql**：`src-tauri/migrations/V001__init.sql` 四表（assets/asset_files/tags/asset_tags）+ 6 索引 + `user_version=1`，幂等，外键 `ON DELETE CASCADE`
+- [x] **Task 2.2 数据库初始化**：`db/mod.rs` `initialize_database()`（建目录→开库→外键→读 user_version→`include_str!` 执行迁移），2 测试
+- [x] **Task 2.3 数据模型**：`models/asset.rs`（Asset/AssetListItem/Create/UpdateAssetRequest）、`asset_file.rs`（AssetFile）、`tag.rs`（Tag/Create/UpdateTagRequest），全部 Serialize/Deserialize，请求响应分离
+- [x] **Task 2.4 Asset Repository**：`asset_repo.rs` CRUD + 分页 + LIKE 搜索 + 部分更新 + 级联删除，8 测试
+- [x] **Task 2.5 AssetFile Repository**：`asset_file_repo.rs` 事务批量插入 + `NewAssetFile` 结构体 + set_primary_file 互斥，4 测试
+- [x] **Task 2.6 Tag Repository**：`tag_repo.rs` tags CRUD + asset_tags 全量替换/双向查询，6 测试
+- [x] **Task 2.7 AppState**：`lib.rs` `AppState { db: Mutex<Connection> }` + `.manage()` 注入；`utils/path.rs` 库路径（`VRAMS_LIBRARY_PATH` 环境变量优先）
+- [x] **验证**：`cargo test` 22 passed + `cargo clippy` 零警告 + Tauri 冒烟（vrams.db 自动创建 57KB）
+- [x] **Review**：无 S1 阻断；S2（unchecked_transaction 嵌套事务隐患，Phase 4 导入时统一事务边界）已登记遗留问题；S3（clippy 复杂类型）已修复
+
+**环境变化（Phase 2 会话）**：用户删除了 VS 下载 temp，导致 vswhere 注册信息丢失 → cargo 找不到 cl.exe/link.exe。**修复方案**：跑 cargo 前先 `vcvarsall.bat x64` 加载 MSVC 环境（`cmd /c '"...\vcvarsall.bat" x64 && cargo ...'`），VS 本体完好无需重装。
 
 ---
 
@@ -107,7 +121,7 @@ docs/
 
 ## 4. 开发计划一览
 
-**当前进度**: P1 ✅ 已完成（全量构建验证通过），下一步按 `phase2-db.md` 开工。
+**当前进度**: P1 ✅ P2 ✅（22 测试全绿 + 冒烟通过），下一步按 `phase3-tags.md` 开工。
 
 | Phase | 名称 | 工时 | 依赖 | 任务数 | 文件 |
 |-------|------|------|------|--------|------|
@@ -191,6 +205,8 @@ vrams/
 | 7 | `reqwest` 默认 TLS 是 native-tls（非此前记录的 rustls） | ✅ 已修正记录 | Windows 走 schannel 无需 OpenSSL，当前无碍；未来跨平台构建需补 `rustls-tls` feature |
 | 8 | `fs:default` 权限偏宽（含递归读写） | ⚠️ Phase 4 收窄 | 导入实现时按需限定 scope（如 dialog 选定路径） |
 | 9 | 架构文档 §9 列出的若干模块未在 Phase 1 创建 | ⚠️ 后续补齐 | 如 `utils/temp_dir.rs`、`services/asset_service.rs`、`tag_service.rs`、前端 `layouts/`、`api/{assets,tags,system}.ts` |
+| 10 | vswhere 注册信息丢失（删 VS temp 后） | ⚠️ 已绕过 | cargo 前跑 `vcvarsall.bat x64`；VS 本体完好；如需根治可 VS Installer 修复 |
+| 11 | `unchecked_transaction` 嵌套事务隐患（asset_file/tag_repo） | ⚠️ Phase 4 处理 | Phase 4 导入「资产+文件+标签」单事务时统一事务边界，避免嵌套 BEGIN |
 
 ---
 
