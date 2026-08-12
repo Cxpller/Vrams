@@ -27,3 +27,10 @@
 - 一句话：`HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` 让命令行工具（reqwest 等）所有请求走代理。
 - 用途：tauri-cli 下载 WiX/NSIS 卡 GitHub 时，`$env:HTTPS_PROXY="http://127.0.0.1:<port>"` 后重跑即通。
 - 出处：Task 1.8
+
+## 函数式 API 的按需引入样式坑（Phase 3 实战）
+- 一句话：按需引入下，`ElMessage`/`ElMessageBox` 这类函数式 API 的样式**不会自动跟随** JS。
+- 症状：显式 `import { ElMessageBox } from "element-plus"` 后功能正常，但弹窗无遮罩/无定位，内容堆在左上角。
+- 根因：模板组件由 unplugin-vue-components 自动带样式；函数式 API 要么走 unplugin-auto-import 的 resolver（自动注入 JS+样式），要么**显式 import 样式**。
+- 修复：`main.ts` 加 `import "element-plus/es/components/message/style/css"` + `"element-plus/es/components/message-box/style/css"`。
+- 出处：Phase 3 冒烟（删除确认弹窗无样式）

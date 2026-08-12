@@ -279,21 +279,21 @@ Phase 3 先配 `/tags` 和占位 `/`，`/asset/:id` 留到 Phase 6。
 
 ### 验收标准
 
-- [ ] 访问 `/#/tags` 可看到标签管理页面
+- [x] 访问 `/tags` 可看到标签管理页面
 - [ ] 路由懒加载正常工作（`() => import(...)`）
 
 ---
 
 ## Phase 3 完整验收 Checklist
 
-- [ ] 3.1 四个 tag command（get/create/update/delete）在 Rust 端实现
-- [ ] 3.2 在 lib.rs 中注册，`cargo check` 通过
-- [ ] 3.3 前端 API 层封装完成，类型定义对齐后端
-- [ ] 3.4 Pinia store 实现，含分组 getter
-- [ ] 3.5 标签管理页面可创建/编辑/删除标签，可分组展示
-- [ ] 3.6 路由配置完成
-- [ ] **全栈链路验证通过**：Vue invoke → Rust command → SQLite → 回显前端
-- [ ] 工程风险已释放，可继续 Phase 4
+- [x] 3.1 四个 tag command（get/create/update/delete）在 Rust 端实现
+- [x] 3.2 在 lib.rs 中注册，`cargo check` 通过
+- [x] 3.3 前端 API 层封装完成，类型定义对齐后端
+- [x] 3.4 Pinia store 实现，含分组 getter
+- [x] 3.5 标签管理页面可创建/编辑/删除标签，可分组展示
+- [x] 3.6 路由配置完成
+- [x] **全栈链路验证通过**：Vue invoke → Rust command → SQLite → 回显前端
+- [x] 工程风险已释放，可继续 Phase 4
 
 ---
 
@@ -305,10 +305,12 @@ Phase 3 先配 `/tags` 和占位 `/`，`/asset/:id` 留到 Phase 6。
 
 **审查重点**:
 
-- [ ] 全栈链路验证：Vue invoke → Rust command → SQLite → 回显前端
-- [ ] 命令三步注册齐全（`commands/` 模块 → `lib.rs` `generate_handler!` → 前端 `invoke`）
-- [ ] 前端错误处理：invoke 失败 → `ElMessage` 提示，不静默
-- [ ] 类型安全：`Tag` 类型前后端对齐，无 `any`
-- [ ] 标签分组展示 + 空状态处理
+- [x] 全栈链路验证：Vue invoke → Rust command → SQLite → 回显前端
+- [x] 命令三步注册齐全（`commands/` 模块 → `lib.rs` `generate_handler!` → 前端 `invoke`）
+- [x] 前端错误处理：invoke 失败 → `ElMessage` 提示，不静默
+- [x] 类型安全：`Tag` 类型前后端对齐，无 `any`
+- [x] 标签分组展示 + 空状态处理
 
 **输出**: 审查报告（结论 + 问题清单 + 验收核对表）。S1 阻断问题未清零前，不允许 git commit / 交付下一 Phase。
+
+**Phase 3 审查结论（2026-08-12）**: 两次 review 均通过，无 S1/S2 阻断。第一次发现 3 项 S3 代码问题（groupOptions 泄漏「未分组」键、handleSave 格式、后端缺 name 长度校验）已修复；复审确认修复正确无回归。另修复冒烟中暴露的 ElMessageBox 按需引入样式缺失（main.ts 显式补 message/message-box 样式）。剩余 S3（DB 层 name 长度约束、错误提示前缀、分组名恰为「全部」的边界）登记入 `.claude/CONTEXT.md` 遗留问题。

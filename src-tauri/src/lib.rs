@@ -34,7 +34,13 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         // 全局状态注入:command 通过 tauri::State<AppState> 访问数据库连接
         .manage(AppState { db: Mutex::new(conn) })
-        // 后续 Phase 在此注册业务命令：tauri::generate_handler![commands::asset_commands::...]
+        // 注册 IPC 命令:前端 invoke("xxx") 时在这里查找对应函数
+        .invoke_handler(tauri::generate_handler![
+            commands::tag_commands::get_tags,
+            commands::tag_commands::create_tag,
+            commands::tag_commands::update_tag,
+            commands::tag_commands::delete_tag,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

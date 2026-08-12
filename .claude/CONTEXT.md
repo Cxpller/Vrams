@@ -11,7 +11,7 @@
 | **项目名称** | VRAMS (Virtual Reality Asset Management System) |
 | **定位** | 面向 VRChat 用户及 Unity 创作者的本地化虚拟资产管理工具 |
 | **技术栈** | Tauri v2 + Vue 3 + TypeScript + Rust + SQLite |
-| **开发阶段** | **Phase 2 已完成**（2026-08 会话），可交付 Phase 3 |
+| **开发阶段** | **Phase 3 已完成**（2026-08 会话），可交付 Phase 4 |
 | **用户模型** | 单机单用户，无登录/多用户 |
 | **支持格式** | .unitypackage / .zip / .7z |
 | **存储策略** | 复制到库目录 `assets/{id}/`，保留原始文件名，导入后可删除源文件 |
@@ -39,7 +39,7 @@
 - ✅ WiX/NSIS 下载卡 GitHub 直连 → 走用户本地代理 `127.0.0.1:27888`（`HTTPS_PROXY` 环境变量）秒下
 - ✅ 教学模式知识点已沉淀到 `.claude/notes/`（rust.md / tauri.md / agent.md）
 
-**下一步**：Phase 3（标签系统全栈验证），任务文件 `docs/tasks/phase3-tags.md`
+**下一步**：Phase 4（资产导入核心），任务文件 `docs/tasks/phase4-import.md`
 
 **已完成（Phase 2，2026-08 会话）**
 
@@ -54,6 +54,19 @@
 - [x] **Review**：无 S1 阻断；S2（unchecked_transaction 嵌套事务隐患，Phase 4 导入时统一事务边界）已登记遗留问题；S3（clippy 复杂类型）已修复
 
 **环境变化（Phase 2 会话）**：用户删除了 VS 下载 temp，导致 vswhere 注册信息丢失 → cargo 找不到 cl.exe/link.exe。**修复方案**：跑 cargo 前先 `vcvarsall.bat x64` 加载 MSVC 环境（`cmd /c '"...\vcvarsall.bat" x64 && cargo ...'`），VS 本体完好无需重装。
+
+**已完成（Phase 3，2026-08 会话）**
+
+- [x] **Task 3.1 tag commands**：`commands/tag_commands.rs` 实现 get_tags/create_tag/update_tag/delete_tag，每个 command 单次 `state.db.lock()`；create/update 加 trim + 非空 + 32 字符校验；重名通过识别 UNIQUE 约束转「标签名已存在」友好错误（利用约束而非先查再插，避免竞态）
+- [x] **Task 3.2 注册**：`lib.rs` `generate_handler!` 注册 4 命令，三步注册齐全（commands 模块 → handler → 前端 invoke）
+- [x] **Task 3.3 前端 API**：`types/tag.ts` 类型与 `models/tag.rs` serde 字段逐字段对齐（返回字段不转换保持 snake_case）；`api/tags.ts` invoke 封装，参数 camelCase→snake_case 由 Tauri 自动转换
+- [x] **Task 3.4 Pinia store**：`stores/tagStore.ts` setup 风格（ref=state/computed=getters/函数=actions），tagsByGroup 空分组归「未分组」、tagOptions 供选择器；`main.ts` 注册 createPinia
+- [x] **Task 3.5 页面**：`views/TagManage.vue` 左分组右标签 + 新建/编辑/删除（ElMessageBox 二次确认）+ 空状态；`components/business/TagEditDialog.vue` 弹窗，groupOptions 仅真实分组
+- [x] **Task 3.6 路由**：`/`（HomePage 占位）+ `/tags` 懒加载
+- [x] **验证**：`cargo check` + `cargo test` 21 passed + `pnpm build`（vue-tsc）全绿；`tauri dev` 全栈冒烟通过（新建/编辑/删除/重名/空名/分组筛选）
+- [x] **Review**：两次 review 均通过无 S1/S2。修复 3 项 S3 + 1 个冒烟问题（见下）
+
+**关键坑（Phase 3 会话）**：Element Plus **按需引入**模式下，`ElMessage`/`ElMessageBox` 等函数式 API 的样式不会自动跟随——显式 `import { ElMessageBox } from "element-plus"` 只拿到 JS。症状：弹窗/toast 功能正常但无样式，内容堆在左上角。**修复**：`main.ts` 显式 `import "element-plus/es/components/message/style/css"` + `"element-plus/es/components/message-box/style/css"`。
 
 ---
 
@@ -121,7 +134,7 @@ docs/
 
 ## 4. 开发计划一览
 
-**当前进度**: P1 ✅ P2 ✅（22 测试全绿 + 冒烟通过），下一步按 `phase3-tags.md` 开工。
+**当前进度**: P1 ✅ P2 ✅ P3 ✅（21 测试全绿 + 全栈冒烟通过），下一步按 `phase4-import.md` 开工。
 
 | Phase | 名称 | 工时 | 依赖 | 任务数 | 文件 |
 |-------|------|------|------|--------|------|
@@ -207,6 +220,9 @@ vrams/
 | 9 | 架构文档 §9 列出的若干模块未在 Phase 1 创建 | ⚠️ 后续补齐 | 如 `utils/temp_dir.rs`、`services/asset_service.rs`、`tag_service.rs`、前端 `layouts/`、`api/{assets,tags,system}.ts` |
 | 10 | vswhere 注册信息丢失（删 VS temp 后） | ⚠️ 已绕过 | cargo 前跑 `vcvarsall.bat x64`；VS 本体完好；如需根治可 VS Installer 修复 |
 | 11 | `unchecked_transaction` 嵌套事务隐患（asset_file/tag_repo） | ⚠️ Phase 4 处理 | Phase 4 导入「资产+文件+标签」单事务时统一事务边界，避免嵌套 BEGIN |
+| 12 | `tags.name` 仅 UNIQUE 无长度约束（32 字符校验纯应用层） | ⚠️ 可选 | 后续迁移可加 `CHECK(length(name) <= 32)` 纵深防御 |
+| 13 | 错误提示 `String(e)` 对 Error 对象会带 "Error: " 前缀 | ⚠️ 可选 | 可统一 `e instanceof Error ? e.message : String(e)` |
+| 14 | 分组名恰为「全部」时与筛选关键字冲突 | ⚠️ 边缘场景 | 可用保留字规避（如常量 `ALL_KEY`） |
 
 ---
 
