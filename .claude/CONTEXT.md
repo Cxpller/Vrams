@@ -1,6 +1,6 @@
 # VRAMS — 项目上下文
 
-**最后更新**: 2026-08-05
+**最后更新**: 2026-08-12
 
 ---
 
@@ -173,14 +173,14 @@ vrams/
 │   ├── notes/                  # 教学模式知识点沉淀（rust.md/tauri.md/agent.md）
 │   └── skills/
 ├── docs/                       # 需求/架构/数据库/计划/任务
-├── src/                        # Vue 前端（Phase 1 目录结构就位）
-│   ├── api/                    # invoke 封装层（空）
+├── src/                        # Vue 前端（Phase 3 标签系统完成）
+│   ├── api/                    # invoke 封装层（tags.ts）
 │   ├── components/common|business/
 │   ├── composables/
-│   ├── stores/
-│   ├── views/
-│   ├── router/index.ts         # 空路由实例
-│   ├── types/                  # asset.ts/tag.ts/api.ts 占位接口
+│   ├── stores/                 # tagStore.ts（Pinia）
+│   ├── views/                  # HomePage.vue / TagManage.vue
+│   ├── router/index.ts         # / 与 /tags 路由（懒加载）
+│   ├── types/                  # tag.ts 已填充 / asset.ts、api.ts 占位
 │   ├── styles/variables.css    # 全局 CSS 变量
 │   ├── utils/
 │   ├── App.vue                 # 仅 <router-view />
@@ -190,7 +190,7 @@ vrams/
 ├── src-tauri/                  # Rust 后端（7 模块域占位）
 │   ├── src/
 │   │   ├── main.rs
-│   │   ├── lib.rs              # 顶级模块声明 + run()（无命令，插件已注册）
+│   │   ├── lib.rs              # AppState 注入 + generate_handler（tag 命令已注册）
 │   │   ├── commands/ models/ services/ db/ parsers/ download/ utils/
 │   ├── capabilities/default.json  # dialog/fs/window 权限已声明
 │   ├── Cargo.toml              # 全部 Rust 依赖
@@ -201,7 +201,7 @@ vrams/
 └── pnpm-lock.yaml
 ```
 
-当前 Phase 1 完成：可编译运行的空应用工程，下一步 Phase 2（数据库）。
+当前 Phase 3 完成：标签系统全栈可用的应用工程，下一步 Phase 4（资产导入核心）。
 
 ---
 
@@ -223,6 +223,8 @@ vrams/
 | 12 | `tags.name` 仅 UNIQUE 无长度约束（32 字符校验纯应用层） | ⚠️ 可选 | 后续迁移可加 `CHECK(length(name) <= 32)` 纵深防御 |
 | 13 | 错误提示 `String(e)` 对 Error 对象会带 "Error: " 前缀 | ⚠️ 可选 | 可统一 `e instanceof Error ? e.message : String(e)` |
 | 14 | 分组名恰为「全部」时与筛选关键字冲突 | ⚠️ 边缘场景 | 可用保留字规避（如常量 `ALL_KEY`） |
+| 15 | 前后端 32 字符校验口径不一致（前端 UTF-16 code units / 后端 Unicode 标量） | ⚠️ 可选 | emoji 等代理对前端更严格（提前截断），无安全风险；可统一 |
+| 16 | `createWebHistory` 生产环境（asset protocol）深层路由刷新可能 404 | ⚠️ 后续确认 | 待验证 Tauri asset fallback；或评估 hash 模式（Phase 9 集成时处理） |
 
 ---
 

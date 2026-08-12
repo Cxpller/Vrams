@@ -39,10 +39,10 @@ pnpm tauri build
 ### Backend (`src-tauri/`)
 
 - **`src-tauri/src/main.rs`** — Binary entry point. Calls `vrams_lib::run()`.
-- **`src-tauri/src/lib.rs`** — Application logic. Defines Tauri `#[tauri::command]` functions (currently a single `greet` command), registers plugins and invoke handlers, and runs the Tauri app.
-- **`src-tauri/Cargo.toml`** — Rust crate config. The library crate is named `vrams_lib` (`crate-type = ["staticlib", "cdylib", "rlib"]`). Dependencies: `tauri` v2, `tauri-plugin-opener`, `serde`, `serde_json`.
+- **`src-tauri/src/lib.rs`** — Application logic. Registers Tauri `#[tauri::command]` functions via `tauri::generate_handler!` (currently 4 tag commands in `commands/tag_commands.rs`), registers plugins, injects `AppState { db: Mutex<Connection> }` via `.manage()`, and runs the Tauri app.
+- **`src-tauri/Cargo.toml`** — Rust crate config. The library crate is named `vrams_lib` (`crate-type = ["staticlib", "cdylib", "rlib"]`). Dependencies: `tauri` v2, `tauri-plugin-opener`/`tauri-plugin-dialog`/`tauri-plugin-fs`, `rusqlite` (bundled SQLite), `serde`/`serde_json`, `zip`/`tar`/`flate2` (package parsing, Phase 4), `scraper` (HTML parsing, Phase 7), `reqwest` (downloads).
 - **`src-tauri/build.rs`** — Standard Tauri build script (`tauri_build::build()`).
-- **`src-tauri/tauri.conf.json`** — Tauri configuration: product name, identifier (`com.cxpller.vrams`), build commands, dev URL (`http://localhost:1420`), window settings (800×600), CSP disabled, bundle icons.
+- **`src-tauri/tauri.conf.json`** — Tauri configuration: product name, identifier (`com.cxpller.vrams`), build commands, dev URL (`http://localhost:1420`), window settings (1200×800), CSP, bundle icons.
 
 ### IPC (Frontend → Rust)
 
@@ -50,13 +50,14 @@ Frontend calls Rust commands via `invoke()` from `@tauri-apps/api/core`:
 
 ```ts
 import { invoke } from "@tauri-apps/api/core";
-// Invokes the Rust #[tauri::command] fn greet(name: &str) -> String
-const result = await invoke("greet", { name: "World" });
+// Invokes the Rust #[tauri::command] fn get_tags(state: State<AppState>) -> Result<Vec<Tag>, String>
+const tags = await invoke("get_tags");
+// Note: JS parameter names use camelCase; Tauri maps them to the Rust snake_case args automatically.
 ```
 
 ### Capabilities (`src-tauri/capabilities/default.json`)
 
-Permissions model for the main window. Currently grants `core:default` and `opener:default`.
+Permissions model for the main window. Currently grants `core:default`, `opener:default`, `dialog:default`, `fs:default`, `core:window:default`.
 
 ### TypeScript Config
 

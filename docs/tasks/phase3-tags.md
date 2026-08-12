@@ -55,10 +55,10 @@
 
 ### 验收标准
 
-- [ ] 四个 command 编译通过，可被 Tauri 注册
-- [ ] 每个 command 内部先 `state.db.lock()` 再调 repo
-- [ ] 错误统一返回 `Err(e.to_string())`
-- [ ] `create_tag` 对重复名称返回友好错误
+- [x] 四个 command 编译通过，可被 Tauri 注册
+- [x] 每个 command 内部先 `state.db.lock()` 再调 repo
+- [x] 错误统一返回 `Err(e.to_string())`
+- [x] `create_tag` 对重复名称返回友好错误
 
 ### 风险点
 
@@ -93,8 +93,8 @@
 
 ### 验收标准
 
-- [ ] `cargo check` 通过
-- [ ] 启动后前端可通过 `invoke("get_tags")` 调用成功（返回空数组）
+- [x] `cargo check` 通过
+- [x] 启动后前端可通过 `invoke("get_tags")` 调用成功（返回空数组）
 
 ---
 
@@ -148,9 +148,9 @@ export async function deleteTag(id: number): Promise<void>;
 
 ### 验收标准
 
-- [ ] 类型定义与 Rust 后端返回的 JSON 结构一致
-- [ ] `invoke` 调用参数名与 Rust command 参数名一致（Tauri 会将参数名转为 snake_case）
-- [ ] 异步函数可在 `onMounted` 等 Vue 生命周期中调用
+- [x] 类型定义与 Rust 后端返回的 JSON 结构一致
+- [x] `invoke` 调用参数名与 Rust command 参数名一致（Tauri 会将参数名转为 snake_case）
+- [x] 异步函数可在 `onMounted` 等 Vue 生命周期中调用
 
 ### 风险点
 
@@ -201,10 +201,10 @@ export const useTagStore = defineStore("tags", () => {
 
 ### 验收标准
 
-- [ ] `fetchTags` 后 `tags` 正确更新
-- [ ] `addTag` 后列表自动追加
-- [ ] `removeTag` 后列表中移除
-- [ ] `tagsByGroup` 按 group_name 分组正确
+- [x] `fetchTags` 后 `tags` 正确更新
+- [x] `addTag` 后列表自动追加
+- [x] `removeTag` 后列表中移除
+- [x] `tagsByGroup` 按 group_name 分组正确
 
 ---
 
@@ -241,11 +241,11 @@ export const useTagStore = defineStore("tags", () => {
 
 ### 验收标准
 
-- [ ] 页面加载时自动调用 `fetchTags`
-- [ ] 新建标签 → 输入名称 → 选择分组 → 保存 → 列表刷新
-- [ ] 编辑标签 → 预填 → 修改 → 保存 → 列表更新
-- [ ] 删除标签 → 确认 → 列表移除
-- [ ] 标签按分组展示（"角色"组下显示 Kikyo/Mafuyu 等）
+- [x] 页面加载时自动调用 `fetchTags`
+- [x] 新建标签 → 输入名称 → 选择分组 → 保存 → 列表刷新
+- [x] 编辑标签 → 预填 → 修改 → 保存 → 列表更新
+- [x] 删除标签 → 确认 → 列表移除
+- [x] 标签按分组展示（"角色"组下显示 Kikyo/Mafuyu 等）
 
 ---
 
@@ -280,7 +280,7 @@ Phase 3 先配 `/tags` 和占位 `/`，`/asset/:id` 留到 Phase 6。
 ### 验收标准
 
 - [x] 访问 `/tags` 可看到标签管理页面
-- [ ] 路由懒加载正常工作（`() => import(...)`）
+- [x] 路由懒加载正常工作（`() => import(...)`）
 
 ---
 
