@@ -10,6 +10,7 @@ mod utils;
 use std::sync::Mutex;
 
 use rusqlite::Connection;
+use tauri::Manager;
 
 /// 全局应用状态,通过 `tauri::manage` 注入,command 用 `tauri::State<'_, AppState>` 访问。
 ///
@@ -21,19 +22,22 @@ pub struct AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // 初始化数据库(Phase 8 前使用环境变量/默认路径,见 utils::path)
-    let db_path = utils::path::get_database_path();
-    let conn = db::initialize_database(&db_path.to_string_lossy())
-        .expect("数据库初始化失败,应用无法启动");
-
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         // Phase 4 导入功能依赖：文件选择器（dialog）+ 文件读取（fs）
         // capabilities/default.json 已声明对应权限
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        // 全局状态注入:command 通过 tauri::State<AppState> 访问数据库连接
-        .manage(AppState { db: Mutex::new(conn) })
+        // 数据库初始化放在 setup 中:默认库目录依赖 AppHandle 解析应用数据目录
+        // (Phase 8 前使用环境变量/默认路径,见 utils::path)
+        .setup(|app| {
+            let db_path = utils::path::get_database_path(app.handle())?;
+            let conn = db::initialize_database(&db_path.to_string_lossy())
+                .map_err(|e| format!("数据库初始化失败({}): {e}", db_path.display()))?;
+            // 全局状态注入:command 通过 tauri::State<AppState> 访问数据库连接
+            app.manage(AppState { db: Mutex::new(conn) });
+            Ok(())
+        })
         // 注册 IPC 命令:前端 invoke("xxx") 时在这里查找对应函数
         .invoke_handler(tauri::generate_handler![
             commands::tag_commands::get_tags,

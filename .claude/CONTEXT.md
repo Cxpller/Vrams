@@ -225,6 +225,7 @@ vrams/
 | 14 | 分组名恰为「全部」时与筛选关键字冲突 | ⚠️ 边缘场景 | 可用保留字规避（如常量 `ALL_KEY`） |
 | 15 | 前后端 32 字符校验口径不一致（前端 UTF-16 code units / 后端 Unicode 标量） | ⚠️ 可选 | emoji 等代理对前端更严格（提前截断），无安全风险；可统一 |
 | 16 | `createWebHistory` 生产环境（asset protocol）深层路由刷新可能 404 | ⚠️ 后续确认 | 待验证 Tauri asset fallback；或评估 hash 模式（Phase 9 集成时处理） |
+| 17 | 默认库目录原为 exe 同级 `vrams-library/`：MSI 装入 Program Files 不可写→启动 panic；卸载/升级会连同资产库删除 | ✅ 已修复 | 改为 `{app_data_dir}/library`（`%APPDATA%\com.cxpller.vrams\library`），DB 初始化移入 `.setup()`；`VRAMS_LIBRARY_PATH` 覆盖保留。旧 dev 库（`target/debug/vrams-library`）不自动迁移 |
 
 ---
 

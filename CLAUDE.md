@@ -39,7 +39,8 @@ pnpm tauri build
 ### Backend (`src-tauri/`)
 
 - **`src-tauri/src/main.rs`** — Binary entry point. Calls `vrams_lib::run()`.
-- **`src-tauri/src/lib.rs`** — Application logic. Registers Tauri `#[tauri::command]` functions via `tauri::generate_handler!` (currently 4 tag commands in `commands/tag_commands.rs`), registers plugins, injects `AppState { db: Mutex<Connection> }` via `.manage()`, and runs the Tauri app.
+- **`src-tauri/src/lib.rs`** — Application logic. Registers Tauri `#[tauri::command]` functions via `tauri::generate_handler!` (currently 4 tag commands in `commands/tag_commands.rs`), registers plugins, opens the database in the `.setup()` hook and injects `AppState { db: Mutex<Connection> }` via `app.manage()`, and runs the Tauri app.
+- **Library path** (`src-tauri/src/utils/path.rs`) — `VRAMS_LIBRARY_PATH` env var if set, otherwise `{app_data_dir}/library` (Windows: `%APPDATA%\com.cxpller.vrams\library`). Never next to the exe: Program Files is read-only and uninstall wipes the install dir.
 - **`src-tauri/Cargo.toml`** — Rust crate config. The library crate is named `vrams_lib` (`crate-type = ["staticlib", "cdylib", "rlib"]`). Dependencies: `tauri` v2, `tauri-plugin-opener`/`tauri-plugin-dialog`/`tauri-plugin-fs`, `rusqlite` (bundled SQLite), `serde`/`serde_json`, `zip`/`tar`/`flate2` (package parsing, Phase 4), `scraper` (HTML parsing, Phase 7), `reqwest` (downloads).
 - **`src-tauri/build.rs`** — Standard Tauri build script (`tauri_build::build()`).
 - **`src-tauri/tauri.conf.json`** — Tauri configuration: product name, identifier (`com.cxpller.vrams`), build commands, dev URL (`http://localhost:1420`), window settings (1200×800), CSP, bundle icons.
