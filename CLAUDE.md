@@ -4,63 +4,53 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Tauri v2 desktop app with a Vue 3 + TypeScript frontend (Vite) and a Rust backend. Package manager is **pnpm**.
+VRAMS — a local asset manager for VRChat / Unity creators. Tauri v2 desktop app: **React 19 + TypeScript** frontend (Vite, Ant Design, Zustand, React Router) and a **Rust** backend with **SQLite** (rusqlite, bundled). Package manager is **pnpm**.
+
+**v2 rewrite in progress** on branch `v2`. Scope, decisions and data model live in [`docs/v2-需求与框架.md`](docs/v2-需求与框架.md) — treat it as the source of truth. v1 (Vue, tag manager only) is archived at tag `v1-final`; its docs are in `docs/archive/v1/`.
+
+The user is learning Tauri / Rust / React through this project: explain the principle before the code, and follow `.claude/skills/mentor/SKILL.md`. Reply in Chinese.
 
 ## Commands
 
 ```bash
-# Frontend dev server (Vite only, port 1420)
-pnpm dev
+pnpm dev            # Vite dev server only (port 1420)
+pnpm build          # tsc --noEmit type-check + vite build
+pnpm tauri dev      # desktop app with hot reload
+pnpm tauri build    # installers (MSI / NSIS)
 
-# Type-check + build frontend for production
-pnpm build
-
-# Preview production build
-pnpm preview
-
-# Tauri dev (launches desktop app with hot-reload)
-pnpm tauri dev
-
-# Tauri production build
-pnpm tauri build
+cd src-tauri
+cargo test
+cargo clippy --all-targets -- -D warnings   # CI treats warnings as errors
 ```
 
-- `pnpm build` runs `vue-tsc --noEmit` (type-checking) then `vite build`.
-- The Tauri dev server uses **fixed port 1420** — it fails if the port is unavailable.
+- Tauri dev uses **fixed port 1420** and fails if it's taken.
+- Local Rust toolchain lives on E: (`RUSTUP_HOME=E:\DevTools\rustup`, `CARGO_HOME=E:\DevTools\cargo`); MSVC is VS 2022 Build Tools (C++ only).
+- CI (`.github/workflows/ci.yml`, windows-latest) runs pnpm build, cargo test and strict clippy on every push to any branch.
 
 ## Architecture
 
 ### Frontend (`src/`)
 
-- **`src/main.ts`** — Entry point. Mounts the root Vue component (`App.vue`) onto `#app` in `index.html`.
-- **`src/App.vue`** — Root SFC using `<script setup lang="ts">`. All Vue components use this pattern.
-- **`vite.config.ts`** — Vite config tailored for Tauri: port 1420, strict port, ignores `src-tauri/` from file watching, HMR host detection for Tauri's webview.
+- `main.tsx` — mounts `<App />` into `#root`, wrapped in antd `ConfigProvider` (zh_CN) and `App`.
+- `App.tsx` — root component (currently a placeholder).
+- `@/` alias → `src/` (configured in both `vite.config.ts` and `tsconfig.json` `paths`; TypeScript 7 has no `baseUrl`, so paths must start with `./`).
 
 ### Backend (`src-tauri/`)
 
-- **`src-tauri/src/main.rs`** — Binary entry point. Calls `vrams_lib::run()`.
-- **`src-tauri/src/lib.rs`** — Application logic. Registers Tauri `#[tauri::command]` functions via `tauri::generate_handler!` (currently 4 tag commands in `commands/tag_commands.rs`), registers plugins, opens the database in the `.setup()` hook and injects `AppState { db: Mutex<Connection> }` via `app.manage()`, and runs the Tauri app.
-- **Library path** (`src-tauri/src/utils/path.rs`) — `VRAMS_LIBRARY_PATH` env var if set, otherwise `{app_data_dir}/library` (Windows: `%APPDATA%\com.cxpller.vrams\library`). Never next to the exe: Program Files is read-only and uninstall wipes the install dir.
-- **`src-tauri/Cargo.toml`** — Rust crate config. The library crate is named `vrams_lib` (`crate-type = ["staticlib", "cdylib", "rlib"]`). Dependencies: `tauri` v2, `tauri-plugin-opener`/`tauri-plugin-dialog`/`tauri-plugin-fs`, `rusqlite` (bundled SQLite), `serde`/`serde_json`, `zip`/`tar`/`flate2` (package parsing, Phase 4), `scraper` (HTML parsing, Phase 7), `reqwest` (downloads).
-- **`src-tauri/build.rs`** — Standard Tauri build script (`tauri_build::build()`).
-- **`src-tauri/tauri.conf.json`** — Tauri configuration: product name, identifier (`com.cxpller.vrams`), build commands, dev URL (`http://localhost:1420`), window settings (1200×800), CSP, bundle icons.
+- `src/lib.rs` — registers plugins (opener, dialog), opens the database in the `.setup()` hook and injects `AppState { db: Mutex<Connection> }` via `app.manage()`. No commands registered yet.
+- `src/db/mod.rs` — `initialize_database()` + migration runner. Migrations are listed in the `MIGRATIONS` array (`include_str!` of `src-tauri/migrations/V00N__*.sql`); each runs in its own transaction and bumps `PRAGMA user_version`. Never edit a released migration — add a new one.
+- `src/utils/path.rs` — library path: `VRAMS_LIBRARY_PATH` env var if set, otherwise `{app_data_dir}/library` (Windows: `%APPDATA%\com.cxpller.vrams\library`). Never next to the exe.
+- Modules are added when first needed (scanner, commands, …); dependencies too (`cargo add`), e.g. zip/tar/flate2 for archive parsing.
 
-### IPC (Frontend → Rust)
-
-Frontend calls Rust commands via `invoke()` from `@tauri-apps/api/core`:
+### IPC
 
 ```ts
 import { invoke } from "@tauri-apps/api/core";
-// Invokes the Rust #[tauri::command] fn get_tags(state: State<AppState>) -> Result<Vec<Tag>, String>
-const tags = await invoke("get_tags");
-// Note: JS parameter names use camelCase; Tauri maps them to the Rust snake_case args automatically.
+const result = await invoke("command_name", { someArg: 1 });
+// JS args are camelCase; Tauri maps them to Rust snake_case params.
+// Return values are serialized by serde as-is (snake_case fields).
 ```
 
 ### Capabilities (`src-tauri/capabilities/default.json`)
 
-Permissions model for the main window. Currently grants `core:default`, `opener:default`, `dialog:default`, `fs:default`, `core:window:default`.
-
-### TypeScript Config
-
-- **`tsconfig.json`** — Strict mode, ES2020 target, bundler module resolution, no emit. Includes `src/**/*.ts`, `src/**/*.vue`.
-- **`tsconfig.node.json`** — References `vite.config.ts` (Node/bundler context).
+`core:default`, `opener:default`, `dialog:default`, `core:window:default`. File system work is done in Rust, so there is no fs plugin.

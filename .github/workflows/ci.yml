@@ -1,10 +1,10 @@
 # CI：在 Windows 上做前端类型检查/构建 + Rust 测试与 clippy
-# 本地没有 Rust/MSVC 环境时，靠这里验证改动
+# 每次推送（任何分支）都会运行，v2 分支开发时也能自动检查
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
   workflow_dispatch:
 
@@ -22,7 +22,7 @@ jobs:
       # ---- 前端 ----
       - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 12
 
       - uses: actions/setup-node@v4
         with:

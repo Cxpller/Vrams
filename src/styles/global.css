@@ -1,0 +1,17 @@
+/* 全局基础样式：让根节点撑满窗口，页面布局由各组件自己管理 */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.app-layout {
+  height: 100%;
+}
+
+.app-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

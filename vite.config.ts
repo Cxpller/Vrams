@@ -1,29 +1,14 @@
-import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
-import vue from "@vitejs/plugin-vue";
-import AutoImport from "unplugin-auto-import/vite";
-import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
-// @ts-expect-error process is a nodejs global
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+// Tauri 开发时可能通过局域网地址访问（移动端调试），由 CLI 注入
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
-export default defineConfig(async () => ({
-  plugins: [
-    vue(),
-    // 按需引入 Element Plus：
-    // - 模板中出现的 <el-xxx> 组件、函数式 API（ElMessage 等）在构建时自动 import
-    // - dts 生成到 src/ 下，让 vue-tsc 识别全局组件类型
-    AutoImport({
-      resolvers: [ElementPlusResolver()],
-      dts: "src/auto-imports.d.ts",
-    }),
-    Components({
-      resolvers: [ElementPlusResolver()],
-      dts: "src/components.d.ts",
-    }),
-  ],
+export default defineConfig({
+  plugins: [react()],
 
   // 路径别名：@/ 指向 src/，与 tsconfig.json 的 paths 保持一致
   resolve: {
@@ -32,25 +17,16 @@ export default defineConfig(async () => ({
     },
   },
 
-  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
-  //
-  // 1. prevent Vite from obscuring rust errors
+  // 以下为 Tauri 专用设置
+  // 1. 不清屏，避免挡住 Rust 的编译错误
   clearScreen: false,
-  // 2. tauri expects a fixed port, fail if that port is not available
   server: {
+    // 2. Tauri 需要固定端口，端口被占用时直接报错而不是换端口
     port: 1420,
     strictPort: true,
     host: host || false,
-    hmr: host
-      ? {
-          protocol: "ws",
-          host,
-          port: 1421,
-        }
-      : undefined,
-    watch: {
-      // 3. tell Vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
-    },
+    hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
+    // 3. 不监听 src-tauri，Rust 代码的变化由 Tauri CLI 自己处理
+    watch: { ignored: ["**/src-tauri/**"] },
   },
-}));
+});

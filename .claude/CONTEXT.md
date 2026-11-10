@@ -1,6 +1,14 @@
 # VRAMS — 项目上下文
 
-**最后更新**: 2026-08-12
+**最后更新**: 2026-11-10
+
+> ## ⚠️ v2 重写中（2026-11）
+>
+> - 范围、决策、数据模型以 [`docs/v2-需求与框架.md`](../docs/v2-需求与框架.md) 为准；下方 §1–§7 为 **v1 历史记录**，仅供参考。
+> - 代码在 `v2` 分支：前端 Vue → **React 19 + antd + Zustand**；后端保留 Tauri + Rust + SQLite，只留 `db`（新迁移机制）与 `utils::path`。
+> - v1 已存档为标签 `v1-final`，旧文档移至 `docs/archive/v1/`。
+> - 本机环境（2026-11-10 装好）：Rust 1.99 在 `E:\DevTools`、VS 2022 Build Tools（仅 C++）、pnpm 12。
+> - 下一步：第一版 —— V001 迁移（library_roots / assets / asset_files / archive_entries）→ 目录扫描 → React 列表页。
 
 ---
 

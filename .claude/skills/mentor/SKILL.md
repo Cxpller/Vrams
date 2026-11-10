@@ -20,7 +20,9 @@ runAs: inline
 
 ## 教学对象背景（写死的前提）
 
-- Vue 3 + TypeScript：**熟练** → 不讲基础，只讲与 Tauri 的交互点（`invoke`、事件、前端生命周期）
+- TypeScript：**熟练**；Vue 3：熟练（v1 用过）
+- React：**从零开始**（v2 起前端改为 React 19 + antd + Zustand）→ 每个概念对照 Vue 讲（`ref`↔`useState`、`computed`↔`useMemo`、`watch`↔`useEffect`、Pinia↔Zustand），重点讲"组件每次渲染都会重新执行"和 `useEffect` 依赖数组
+- Rust / Tauri：三个月没碰，**基本当作重新学**
 - Rust / Tauri / SQLite：**从零开始** → 每个概念用类比讲清，不术语轰炸
 - Agent 工作流本身：**在学** → todo list、验证循环、review 闭环、commit 原子性都是教学内容
 - 中文交流
@@ -60,5 +62,6 @@ runAs: inline
 
 - ❌ 不改变开发流程、不跳过验证和 review（教学模式 ≠ 简化模式）
 - ❌ 不代替你思考：先讲思路再写代码，让你看到「为什么这样设计」
-- ❌ 不讲 Vue 基础；用户问 Vue 问题就一句话带过
+- ❌ 不讲 TypeScript 基础；用户问 TS 问题就一句话带过
+- ✅ 用户说"写不出来"时，每一步直接给出代码 + 原理，而不是只给提示
 - ✅ review 报告若出现你看不懂的术语，由主 agent 负责解释报告内容（review 本身保持纯审查）
